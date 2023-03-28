@@ -170,8 +170,9 @@ class Huffman(object):
                 byte+=int.to_bytes(self.dict.index([tmp,count]),1,'big')
                 sum+=count
                 count=0
+                if len-sum<self.min_len:
+                    break
             count+=1
-        time.sleep(0.01)
         return byte,data,len-sum
     def decode(self):
         with open(self.path, 'rb') as file:#写入文件数据
@@ -189,20 +190,24 @@ class Huffman(object):
         table=int.from_bytes(data[2:table_len+2],'big')#读入头部表
         self._table_to_dict(table,table_len)#将头部表数据转换为dict
         data=data[table_len+2:]
+        outbyte=b''
         with open(self.destination + name, 'wb') as out:
             count=0
             remain =0
-            for i in data:
-                remain=remain<<8 | i
-                count+=8
-                if count>65536:
-                    byte,remain,count=self._check(remain,count)
-                    out.write(byte)
+            bit=1024
+            for i in range(len(data)//bit):
+                remain=remain<<(bit*8) | int.from_bytes(data[:bit],'big')
+                count+=(bit*8)
+                byte,remain,count=self._check(remain,count)
+                outbyte+=byte
+                data=data[bit:]
             byte, remain, count = self._check(remain, count)
-            out.write(byte)
+            outbyte+=byte
+            out.write(outbyte)
+
         return
 if __name__ == '__main__':
     huffman=Huffman()
-    huffman.path='baby_music.zip'
-    huffman.destination='2'
-    huffman.encode()
+    huffman.path='2.hzip'
+    huffman.destination='3'
+    huffman.decode()
