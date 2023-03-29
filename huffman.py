@@ -150,6 +150,7 @@ class Huffman(object):
         if self.show_info:
             print('Initializing dictionary...')
         self._init_dict(self.tree.root)  # 生成表
+        print(self.freq_list)
         if self.show_info:
             print('Writing header...')
         header = self._init_header()  # 生成头部辅助信息
@@ -205,7 +206,7 @@ class Huffman(object):
         self.inv_dict_keys = self.inv_dict.keys()
         return
 
-    def _replace(self, data, len):  # 对传入的进行查表还原，并返回剩下的字节
+    def _parse(self, data, len):  # 对传入的进行查表还原，并返回剩下的字节
         byte = b''
         count = self.min_len
         sum = 0
@@ -263,9 +264,9 @@ class Huffman(object):
             for i in tqdm(range(len(data) // bit)):
                 remain = remain << (bit * 8) | int.from_bytes(data[bit * i:bit * (i + 1)], 'big')
                 count += (bit * 8)
-                byte, remain, count = self._replace(remain, count)
+                byte, remain, count = self._parse(remain, count)
                 out.write(byte)
-            byte, remain, count = self._replace(remain, count)
+            byte, remain, count = self._parse(remain, count)
             out.write(byte)
         self.end_time=time.time()
         if self.show_info:
