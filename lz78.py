@@ -23,6 +23,7 @@ class lz78(object):
     def _init_dict(self):
         with open(self.path, 'rb') as file:  # 写入文件数据
             data = file.read()
+        self.size=os.path.getsize(self.path)
         tmp = b''
         count = 1
         for i in tqdm(range(len(data))):
